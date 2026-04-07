@@ -5,64 +5,68 @@
 #define DT 0.01       // timestep
 #define STEPS 1000    // total number of calculations performed per run
 #define SOFTENING 0.1 // so forces dont blow up at dist = 0 to infinity
+#define MAX_BODIES 10 // maximum amount of bodies before throwing a warning
+
+void init_bodies(double x[], double y[], double vx[], double vy[], double m[], int *n) {
+    scanf("%d", n);
+    if (*n > MAX_BODIES) { // throw warning if n is bigger then 10
+        printf("Performance may suffer when N > 10 do you want to continue?\n");
+        printf("y/n: ");
+        char yn;
+        scanf(" %c", &yn);
+        if (yn == 'n') {
+            *n = 0;
+            return;
+        }
+    }
+    for (int i = 0; i < *n; i++) {
+        // ins code
+    }
+}
+
+void compute_forces(double x[], double y[], double m[], double ax[], double ay[], int n) {
+}
+
+double compute_energy(double x[], double y[], double vx[], double vy[], double m[], int n) {
+}
+
+void integrate(double x[], double y[], double vx[], double vy[], double ax[], double ay[], int n) {
+}
+
+void print_state(double x[], double y[], int n, int step) {
+    for (int i = 0; i < n; i++) {
+        printf("x: %.4f y: %.4f @ step: %d\n", x[i], y[i], step);
+    }
+}
 
 int main(void) {
-    // body 1
-    double x1 = -1.0, y1 = 0.0;
-    double vx1 = 0.0, vy1 = 0.5;
-    double m1 = 1.0;
+    double x[MAX_BODIES], y[MAX_BODIES];
+    double vx[MAX_BODIES], vy[MAX_BODIES];
+    double m[MAX_BODIES];
+    double ax[MAX_BODIES], ay[MAX_BODIES];
+    int n = 0;
 
-    // body 2
-    double x2 = 1.0, y2 = 0.0;
-    double vx2 = 0.0, vy2 = -0.5;
-    double m2 = 1.0;
+    init_bodies(x, y, vx, vy, m, &n);
 
     double E_initial = 0.0;
 
     for (int i = 0; i < STEPS; i++) {
-
-        double dx = x2 - x1;
-        double dy = y2 - y1;
-
-        double dist = sqrt(dx * dx + dy * dy + SOFTENING * SOFTENING);
-
-        double force = G * m1 * m2 / (dist * dist);
-
-        double ax1 = force * dx / dist / m1;
-        double ay1 = force * dy / dist / m1;
-        double ax2 = -force * dx / dist / m2;
-        double ay2 = -force * dy / dist / m2;
-
-        // total kinetic energy of system = (1/2)*(m)*(v^2) note, velocity is the total magnitude of
-        // components
-        double ke = (0.5 * m1 * (vx1 * vx1 + vy1 * vy1)) + (0.5 * m2 * (vx2 * vx2 + vy2 * vy2));
-        // total potential energy of the system = -(G*M*m)/r note, this is hardcoded for 2 bodies
-        double pe = -G * m1 * m2 / dist;
-        // total energy of the system
-        double energy = ke + pe;
+        compute_forces(x, y, m, ax, ay, n);
+        integrate(x, y, vx, vy, ax, ay, n);
+        double energy = compute_energy(x, y, vx, vy, m, n);
 
         if (i == 0) {
             E_initial = energy;
         }
 
         double drift = energy - E_initial;
-        // check if energy is being conserved
-        if (fabs(drift) > 0.01 * fabs(E_initial)) { // if drift is bigger the  1% of the inital
-            printf("Energy is not being conserved");
+        if (fabs(drift) > 0.01 * fabs(E_initial)) { // if drift is bigger then 1% of inital energy
+            printf("WARNING: energy isnt being conserved %.4f at step %d\n",
+                   100.0 * drift / fabs(E_initial), i);
             break;
         }
 
-        vx1 += ax1 * DT;
-        vy1 += ay1 * DT;
-        vx2 += ax2 * DT;
-        vy2 += ay2 * DT;
-
-        x1 += vx1 * DT;
-        y1 += vy1 * DT;
-        x2 += vx2 * DT;
-        y2 += vy2 * DT;
-
-        printf("step %4d  body1=(%.3f, %.3f)  body2=(%.3f, %.3f)\n", i, x1, y1, x2, y2);
+        print_state(x, y, n, i);
     }
     return 0;
 }
