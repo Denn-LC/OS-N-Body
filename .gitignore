@@ -1,0 +1,19 @@
+# executables
+main
+main.exe
+
+# config files
+*CLAUDE.md
+
+# object files
+*.o
+*.obj
+
+# build outputs
+*.out
+
+# VS Code (optional)
+.vscode/
+
+# temp files
+*.tmp
