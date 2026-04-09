@@ -2,9 +2,6 @@
 main
 main.exe
 
-# config files
-*CLAUDE.md
-
 # object files
 *.o
 *.obj
