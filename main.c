@@ -139,7 +139,7 @@ void integrate(body_t bodies[], int n) {
 
 void print_state(body_t bodies[], int n, int step) {
     for (int i = 0; i < n; i++) {
-        printf("x: %.4f y: %.4f @ step: %d\n", bodies[i].pos.x, bodies[i].pos.y, step);
+        printf("body %d: x: %.4f y: %.4f @ step: %d\n", i, bodies[i].pos.x, bodies[i].pos.y, step);
     }
 }
 
