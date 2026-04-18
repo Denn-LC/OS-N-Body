@@ -137,9 +137,9 @@ void integrate(body_t bodies[], int n) {
     }
 }
 
-void print_state(body_t bodies[], int n, int step) {
+void write_state(body_t bodies[], int n, int step, FILE *out) {
     for (int i = 0; i < n; i++) {
-        printf("body %d: x: %.4f y: %.4f @ step: %d\n", i, bodies[i].pos.x, bodies[i].pos.y, step);
+        fprintf(out, "%d,%d,%.4f,%.4f\n", step, i, bodies[i].pos.x, bodies[i].pos.y);
     }
 }
 
@@ -154,6 +154,9 @@ int main(void) {
         return 0;
     }
 
+    FILE *out = fopen("output/output.csv", "w");
+    fprintf(out, "step,body,x,y\n");
+
     double E_initial = 0.0;
 
     for (int i = 0; i < STEPS; i++) {
@@ -167,18 +170,14 @@ int main(void) {
 
         double drift = energy - E_initial;
         if (choice != 4) {
-            if (fabs(drift) >
-                0.01 * fabs(E_initial)) { // if drift is bigger then 1% of inital energy
-                printf("warning: energy isnt being conserved %.2f%% at step %d\n",
-                       100.0 * drift / fabs(E_initial), i);
+            if (fabs(drift) > 0.01 * fabs(E_initial)) { // if drift is bigger then 1% of inital energy
                 break;
             }
         }
+        write_state(bodies, n, i, out);
+    }
 
-        print_state(bodies, n, i);
-    }
-    if (choice == 4) {
-        printf("note: energy is not conserved for entropymaxxing, this is due to the limitations of Euler integration");
-    }
+    fclose(out);
+    printf("simulation written\n");
     return 0;
 }
